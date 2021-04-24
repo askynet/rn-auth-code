@@ -282,16 +282,18 @@ class App extends React.Component {
     console.log(event.url);
     // Bit of a hack to get the token from this URL... 
     // implement yours in a safer way
-    console.log(event.url.split('#')[1].split('=')[1].split('&')[0]);
+    // console.log(event.url.split('#')[1].split('=')[1].split('&')[0]);
   }
   _facebookLogin() {
-    Linking.openURL([
+    const url = [
       'https://www.facebook.com/v10.0/dialog/oauth',
       '?response_type=code',
       '&client_id='+'194683262299144',
       '&redirect_uri=fb194683262299144://authorize',
-      '&$scope=email' // Specify permissions
-    ].join(''));
+      '&scope=email' // Specify permissions
+    ].join('');
+    console.log('url', url);
+    Linking.openURL(url);
   }
 
 }
