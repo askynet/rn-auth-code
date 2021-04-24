@@ -290,7 +290,7 @@ class App extends React.Component {
       '?response_type=code',
       '&client_id='+'194683262299144',
       '&redirect_uri=fb194683262299144://authorize',
-      '$scope=email' // Specify permissions
+      '&$scope=email' // Specify permissions
     ].join(''));
   }
 
