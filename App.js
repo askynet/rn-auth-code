@@ -27,6 +27,10 @@ import { LoginManager, AccessToken, GraphRequest, GraphRequestManager } from "re
 import GoogleSignIn from 'react-native-google-sign-in';
 import { Platform } from 'react-native';
 
+import { appleAuthAndroid } from '@invertase/react-native-apple-authentication';
+import 'react-native-get-random-values';
+import { v4 as uuid } from 'uuid'
+
 import {
   Colors,
   DebugInstructions,
@@ -85,7 +89,7 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
-    Linking.addEventListener('url', this._handleURL);
+    Linking.addEventListener('url', this._handleURL.bind(this));
     await GoogleSignIn.configure({
       // iOS
       clientID: '517037277626-1rk1in3mn9jk3u2di9lgcbcs5f6abn70.apps.googleusercontent.com',
@@ -147,7 +151,7 @@ class App extends React.Component {
                   title="Facebook"
                 />
 
-                <Button onPress={() => this.googleAuth()}
+                <Button onPress={() => this.onAppleButtonPress()}
                   style={styles.loginButton}
                   title="Apple"
                 />
@@ -279,10 +283,20 @@ class App extends React.Component {
   }
 
   _handleURL(event) {
-    console.log(event.url);
-    // Bit of a hack to get the token from this URL... 
-    // implement yours in a safer way
-    // console.log(event.url.split('#')[1].split('=')[1].split('&')[0]);
+    if (event.url && event.url.includes('?code=')) {
+      var code = event.url.split('?code=');
+      this.setState({
+        authCode: code[1]
+      });
+      this.toast('Login Successfully')
+      console.log('');
+      console.log('=============================================');
+      console.log('');
+      console.log(code[1]);
+      console.log('');
+      console.log('=============================================');
+      console.log('');
+    }
   }
   _facebookLogin() {
     const url = [
@@ -292,8 +306,40 @@ class App extends React.Component {
       '&redirect_uri=fb194683262299144://authorize',
       '&scope=email' // Specify permissions
     ].join('');
-    console.log('url', url);
     Linking.openURL(url);
+  }
+
+  async onAppleButtonPress() {
+    // Generate secure, random values for state and nonce
+    const rawNonce = uuid();
+    const state = uuid();
+  
+    // Configure the request
+    appleAuthAndroid.configure({
+      // The Service ID you registered with Apple
+      clientId: 'com.demo',
+  
+      // Return URL added to your Apple dev console. We intercept this redirect, but it must still match
+      // the URL you provided to Apple. It can be an empty route on your backend as it's never called.
+      redirectUri: 'fb194683262299144://authorize',
+  
+      // The type of response requested - code, id_token, or both.
+      responseType: appleAuthAndroid.ResponseType.ALL,
+  
+      // The amount of user information requested from Apple.
+      scope: appleAuthAndroid.Scope.ALL,
+  
+      // Random nonce value that will be SHA256 hashed before sending to Apple.
+      nonce: rawNonce,
+  
+      // Unique state value used to prevent CSRF attacks. A UUID will be generated if nothing is provided.
+      state,
+    });
+  
+    // Open the browser window for user sign in
+    const response = await appleAuthAndroid.signIn();
+  
+    console.log('response', response);
   }
 
 }
