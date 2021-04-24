@@ -190,14 +190,6 @@ class App extends React.Component {
     });
     console.log('googleAuth login');
     try {
-      // const result = await authorize(googleConfig);
-      // console.log('==================Google==================>');
-      // console.log('====================================>');
-      // console.log('idToken', result);
-      // console.log('====================================>');
-      // console.log('refreshToken', result.refreshToken);
-      // console.log('====================================>');
-      // console.log('==================Google End==================>');
 
       const user = await GoogleSignIn.signInPromise();
 
