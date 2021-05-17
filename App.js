@@ -24,7 +24,8 @@ import { authorize, refresh, AuthConfiguration } from 'react-native-app-auth';
 
 import { LoginManager, AccessToken, GraphRequest, GraphRequestManager } from "react-native-fbsdk";
 
-import GoogleSignIn from 'react-native-google-sign-in';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+
 import { Platform } from 'react-native';
 
 import { appleAuthAndroid } from '@invertase/react-native-apple-authentication';
@@ -90,9 +91,10 @@ class App extends React.Component {
 
   async componentDidMount() {
     Linking.addEventListener('url', this._handleURL.bind(this));
-    await GoogleSignIn.configure({
+    await GoogleSignin.configure({
       // iOS
-      clientID: '517037277626-1rk1in3mn9jk3u2di9lgcbcs5f6abn70.apps.googleusercontent.com',
+      // clientID: '517037277626-1rk1in3mn9jk3u2di9lgcbcs5f6abn70.apps.googleusercontent.com',
+      iosClientId: '517037277626-m9l9q2p93ljq3irmphfnkpgfe9vr9ccp.apps.googleusercontent.com',
 
       // iOS, Android
       // https://developers.google.com/identity/protocols/googlescopes
@@ -101,11 +103,11 @@ class App extends React.Component {
 
       // iOS, Android
       // https://developers.google.com/identity/sign-in/ios/api/interface_g_i_d_sign_in.html#ae214ed831bb93a06d8d9c3692d5b35f9
-      serverClientID: '517037277626-b4nn0sets5cbqbbgrvlirhhjqhah8d0q.apps.googleusercontent.com',
+      webClientId: '517037277626-b4nn0sets5cbqbbgrvlirhhjqhah8d0q.apps.googleusercontent.com',
 
       // Android
       // Whether to request server auth code. Make sure to provide `serverClientID`.
-      // https://developers.google.com/android/reference/com/google/android/gms/auth/api/signin/GoogleSignInOptions.Builder.html#requestServerAuthCode(java.lang.String, boolean)
+      // https://developers.google.com/android/reference/com/google/android/gms/auth/api/signin/GoogleSigninOptions.Builder.html#requestServerAuthCode(java.lang.String, boolean)
       offlineAccess: true,
 
     });
@@ -128,13 +130,13 @@ class App extends React.Component {
               <Button disabled={this.state.authCode === ''} onPress={() => {
                 // alert(this.state.authCode);
                 Clipboard.setString(this.state.authCode);
-                ToastAndroid.showWithGravityAndOffset(
-                  'auth code copied to clipboard',
-                  ToastAndroid.LONG,
-                  ToastAndroid.BOTTOM,
-                  25,
-                  50
-                );
+                // ToastAndroid.showWithGravityAndOffset(
+                //   'auth code copied to clipboard',
+                //   ToastAndroid.LONG,
+                //   ToastAndroid.BOTTOM,
+                //   25,
+                //   50
+                // );
               }}
                 style={[styles.loginButton, { marginTop: 20 }]}
                 title="Copy Auth Code"
@@ -173,13 +175,13 @@ class App extends React.Component {
   }
 
   toast(msg) {
-    ToastAndroid.showWithGravityAndOffset(
-      msg,
-      ToastAndroid.LONG,
-      ToastAndroid.BOTTOM,
-      25,
-      50
-    );
+    // ToastAndroid.showWithGravityAndOffset(
+    //   msg,
+    //   ToastAndroid.LONG,
+    //   ToastAndroid.BOTTOM,
+    //   25,
+    //   50
+    // );
   }
   copy() {
     Clipboard.setString(this.state.authCode);
@@ -191,7 +193,7 @@ class App extends React.Component {
     console.log('googleAuth login');
     try {
 
-      const user = await GoogleSignIn.signInPromise();
+      const user = await GoogleSignin.signIn();
 
       if (user.serverAuthCode) {
         console.log(user);
@@ -221,7 +223,7 @@ class App extends React.Component {
   }
 
   async signOut() {
-    await GoogleSignIn.signOut();
+    await GoogleSignin.signOut();
     this.setState({
       authCode: ''
     });
@@ -275,6 +277,7 @@ class App extends React.Component {
   }
 
   _handleURL(event) {
+    console.log('event', event);
     if (event.url && event.url.includes('?code=')) {
       var code = event.url.split('?code=');
       this.setState({
